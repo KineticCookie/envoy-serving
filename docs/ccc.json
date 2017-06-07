@@ -1,0 +1,22 @@
+{
+  "clusters": [
+    {
+      "name": "http-0f1aafb7-7762-3b54-a44c-f13cbb8f2b1d",
+      "type": "static",
+      "connect_timeout_ms": 500,
+      "lb_type": "round_robin",
+      "hosts": [
+        {
+          "url": "tcp://127.0.0.1:9090"
+        }
+      ]
+    },
+    {
+      "name": "http-manager-global-cluster-manager",
+      "type": "sds",
+      "connect_timeout_ms": 500,
+      "lb_type": "round_robin",
+      "service_name": "http-manager-global-cluster-manager"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+ClusterConfig(clusters=[
+Cluster(name=f8d0d49a-9b3a-3ed5-ae39-dd944771124d, type=static, connectTimeoutMs=500, lbType=round_robin,
+    hosts=[ClusterHost(url=tcp://172.17.0.5:8081)], serviceName=null, features=http2),
+Cluster(name=http-0f1aafb7-7762-3b54-a44c-f13cbb8f2b1d, type=static, connectTimeoutMs=500, lbType=round_robin,
+    hosts=[ClusterHost(url=tcp://172.17.0.3:8080)], serviceName=null, features=null),
+Cluster(name=4c829e61-b911-3b3c-8441-6ed5bc1d1b84, type=static, connectTimeoutMs=500, lbType=round_robin,
+    hosts=[ClusterHost(url=tcp://127.0.0.1:9091)], serviceName=null, features=http2),
+Cluster(name=http-4c829e61-b911-3b3c-8441-6ed5bc1d1b84, type=static, connectTimeoutMs=500, lbType=round_robin,
+    hosts=[ClusterHost(url=tcp://127.0.0.1:9090)], serviceName=null, features=null),
+Cluster(name=serving-model1, type=sds, connectTimeoutMs=500, lbType=round_robin,
+    hosts=null, serviceName=serving-model1, features=http2),
+Cluster(name=http-gateway-gateway, type=static, connectTimeoutMs=500, lbType=round_robin,
+    hosts=[ClusterHost(url=tcp://127.0.0.1:9090)], serviceName=http-gateway-gateway, features=null),
+Cluster(name=http-manager-global-cluster-manager, type=sds, connectTimeoutMs=500, lbType=round_robin,
+    hosts=null, serviceName=http-manager-global-cluster-manager, features=null),
+Cluster(name=gateway-gateway, type=static, connectTimeoutMs=500, lbType=round_robin,
+    hosts=[ClusterHost(url=tcp://127.0.0.1:9091)], serviceName=gateway-gateway, features=http2)])
+
+
+ServiceConfig(hosts=[ServiceHost(ipAddress=172.17.0.4, port=8081, tags=null)])
+
+ routes: grpc,gateway,7f94c6df78d7517f08d4e40ea7a15735c5e400bf97f04638332d6d5bfbab7317
+RouteConfig(virtualHosts=[
+RouteHost(name=8692a5b6f5b7cc6efebe3a85c5b0065f5b28188f55758f6f2a1baa55ea99c33c,
+    domains=[8692a5b6f5b7cc6efebe3a85c5b0065f5b28188f55758f6f2a1baa55ea99c33c],
+    routes=[Route(prefix=/, cluster=f8d0d49a-9b3a-3ed5-ae39-dd944771124d)]),
+RouteHost(name=7f94c6df78d7517f08d4e40ea7a15735c5e400bf97f04638332d6d5bfbab7317,
+    domains=[7f94c6df78d7517f08d4e40ea7a15735c5e400bf97f04638332d6d5bfbab7317],
+    routes=[Route(prefix=/, cluster=4c829e61-b911-3b3c-8441-6ed5bc1d1b84)]),
+RouteHost(name=serving-model1,
+    domains=[serving-model1],
+    routes=[Route(prefix=/, cluster=serving-model1)]),
+RouteHost(name=gateway-gateway,
+    domains=[gateway-gateway],
+    routes=[Route(prefix=/, cluster=gateway-gateway)])])
