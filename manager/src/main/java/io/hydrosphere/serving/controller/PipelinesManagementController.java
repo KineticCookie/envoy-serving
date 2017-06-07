@@ -48,6 +48,7 @@ public class PipelinesManagementController {
     private PipelineTO map(EndpointDefinition definition) {
         PipelineTO to = new PipelineTO();
         to.setName(definition.getName());
+        to.setTransportType(definition.getTransportType());
         to.setChain(new ArrayList<>(definition.getChain()));
         return to;
     }
@@ -55,6 +56,7 @@ public class PipelinesManagementController {
     private EndpointDefinition map(PipelineTO to) {
         EndpointDefinition definition = new EndpointDefinition();
         definition.setName(to.getName());
+        definition.setTransportType(to.getTransportType());
         definition.setChain(new ArrayList<>(to.getChain()));
         return definition;
     }

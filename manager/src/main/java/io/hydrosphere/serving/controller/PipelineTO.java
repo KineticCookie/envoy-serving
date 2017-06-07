@@ -12,4 +12,6 @@ public class PipelineTO {
     private String name;
 
     private List<String> chain;
+
+    private String transportType;
 }

@@ -19,17 +19,17 @@ Cluster(name=gateway-gateway, type=static, connectTimeoutMs=500, lbType=round_ro
 
 ServiceConfig(hosts=[ServiceHost(ipAddress=172.17.0.4, port=8081, tags=null)])
 
- routes: grpc,gateway,7f94c6df78d7517f08d4e40ea7a15735c5e400bf97f04638332d6d5bfbab7317
-RouteConfig(virtualHosts=[
-RouteHost(name=8692a5b6f5b7cc6efebe3a85c5b0065f5b28188f55758f6f2a1baa55ea99c33c,
-    domains=[8692a5b6f5b7cc6efebe3a85c5b0065f5b28188f55758f6f2a1baa55ea99c33c],
-    routes=[Route(prefix=/, cluster=f8d0d49a-9b3a-3ed5-ae39-dd944771124d)]),
-RouteHost(name=7f94c6df78d7517f08d4e40ea7a15735c5e400bf97f04638332d6d5bfbab7317,
-    domains=[7f94c6df78d7517f08d4e40ea7a15735c5e400bf97f04638332d6d5bfbab7317],
-    routes=[Route(prefix=/, cluster=4c829e61-b911-3b3c-8441-6ed5bc1d1b84)]),
-RouteHost(name=serving-model1,
-    domains=[serving-model1],
-    routes=[Route(prefix=/, cluster=serving-model1)]),
-RouteHost(name=gateway-gateway,
-    domains=[gateway-gateway],
-    routes=[Route(prefix=/, cluster=gateway-gateway)])])
+
+RouteHost(name=http-3a280b395103cb38a2153f035dae200270f5a54438137d5389ad09a68703cb7b,
+    domains=[http-3a280b395103cb38a2153f035dae200270f5a54438137d5389ad09a68703cb7b],
+    routes=[Route(prefix=/, cluster=http-f8d0d49a-9b3a-3ed5-ae39-dd944771124d)]),
+RouteHost(name=http-3bffcf7422e15368554006f236c36920112779ed0012275a4e11aa4803735673,
+    domains=[http-3bffcf7422e15368554006f236c36920112779ed0012275a4e11aa4803735673],
+    routes=[Route(prefix=/, cluster=http-4c829e61-b911-3b3c-8441-6ed5bc1d1b84)]),
+RouteHost(name=http-0699cf1cb938233e658f02b4e0d97557b2d65bde5918f62f783772a6197f952c,
+    domains=[http-0699cf1cb938233e658f02b4e0d97557b2d65bde5918f62f783772a6197f952c],
+    routes=[Route(prefix=/, cluster=http-0f1aafb7-7762-3b54-a44c-f13cbb8f2b1d)]),
+RouteHost(name=all,
+    domains=[*],
+    routes=[Route(prefix=/, cluster=http-4c829e61-b911-3b3c-8441-6ed5bc1d1b84)]),
+RouteHost(name=http-serving-model1, domains=[http-serving-model1], routes=[Route(prefix=/, cluster=http-serving-model1)]), RouteHost(name=http-gateway-gateway, domains=[http-gateway-gateway], routes=[Route(prefix=/, cluster=http-gateway-gateway)]), RouteHost(name=http-manager-global-cluster-manager, domains=[http-manager-global-cluster-manager], routes=[Route(prefix=/, cluster=http-manager-global-cluster-manager)])])

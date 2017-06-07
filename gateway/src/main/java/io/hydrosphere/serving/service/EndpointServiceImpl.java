@@ -7,19 +7,27 @@ import com.google.protobuf.ByteString;
 import io.hydrosphere.serving.config.SideCarConfig;
 import io.hydrosphere.serving.proto.ServingPipeline;
 import io.hydrosphere.serving.proto.Stage;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
  */
 @Service
 public class EndpointServiceImpl implements EndpointService {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private Map<String, EndpointDefinition> definitions = new ConcurrentHashMap<>();
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final SideCarConfig.SideCarConfigurationProperties sideCarConfigurationProperties;
 
@@ -27,14 +35,26 @@ public class EndpointServiceImpl implements EndpointService {
         this.sideCarConfigurationProperties = sideCarConfigurationProperties;
     }
 
+    public EndpointDefinition endpointDefinition(String endpoint){
+        return definitions.get(endpoint);
+    }
+
     @Override
     public ServingPipeline getPipeline(String endpoint, JsonNode jsonNode) {
+        EndpointDefinition definition = definitions.get(endpoint);
+        if (definition == null) {
+            return null;
+        }
+        List<Stage> stages = new ArrayList<>();
+        definition.getChain().forEach(c -> {
+            stages.add(Stage.newBuilder()
+                    .setAction("action")
+                    .setDestination(c)
+                    .setType(Stage.StageType.SERVE)
+                    .build());
+        });
+
         ServingPipeline servingPipeline;
-        List<Stage> stages = Collections.singletonList(Stage.newBuilder()
-                .setAction("action")
-                .setDestination("serving-model1")
-                .setType(Stage.StageType.SERVE)
-                .build());
         try {
             servingPipeline = ServingPipeline.newBuilder()
                     .setStartTime(System.currentTimeMillis())
@@ -50,28 +70,14 @@ public class EndpointServiceImpl implements EndpointService {
         return servingPipeline;
     }
 
-    @Override
-    public void create(EndpointDefinition definition) {
-        
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    @Override
-    public EndpointDefinition getDefinition(String name) {
-        return null;
-    }
+    @Scheduled(fixedDelay = 3000L)
+    public void syncEndpoint() {
+        ResponseEntity<List<EndpointDefinition>> responseEntity = restTemplate.exchange("http://" + sideCarConfigurationProperties.getManagerHost() + ":" + sideCarConfigurationProperties.getManagerPort()
+                + "/api/v1/pipelines", HttpMethod.GET, null, new ParameterizedTypeReference<List<EndpointDefinition>>() {
+        });
 
-    @Override
-    public void delete(String name) {
-
-    }
-
-    @Override
-    public void updateDefinition(EndpointDefinition definition) {
-
-    }
-
-    @Override
-    public List<EndpointDefinition> definitions() {
-        return null;
+        responseEntity.getBody().forEach(p -> definitions.put(p.getName(), p));
     }
 }

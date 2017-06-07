@@ -34,5 +34,10 @@ public class SideCarConfig {
         private int serviceGrpcPort = 9091;
 
         private String serviceId;
+
+        private String managerHost;
+
+        private int managerPort = 8080;
+
     }
 }

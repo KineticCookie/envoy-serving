@@ -36,8 +36,8 @@ public class EnvoyMeshManagerService implements MeshManagerService {
         this.sideCarConfigurationProperties = sideCarConfigurationProperties;
     }
 
-    private RouteHost create(String name, String cluster, String domain){
-        RouteHost routeHost=new RouteHost();
+    private RouteHost create(String name, String cluster, String domain) {
+        RouteHost routeHost = new RouteHost();
         routeHost.setDomains(Collections.singletonList(domain));
         routeHost.setName(name);
         routeHost.setRoutes(Collections.singletonList(new Route("/", cluster)));
@@ -51,23 +51,24 @@ public class EnvoyMeshManagerService implements MeshManagerService {
         Map<String, RouteHost> serviceClusters = new HashMap<>();
         services.values().forEach((service) -> {
             if (service.isUseServiceGrpc() && configName.equals("grpc")) {
-                String serviceName=getServiceName(service);
-                serviceClusters.computeIfAbsent(serviceName, (s)->create(s, s, s));
+                String serviceName = getServiceName(service);
+                serviceClusters.computeIfAbsent(serviceName, (s) -> create(s, s, s));
                 routeHosts.add(create(service.getServiceId(), service.getServiceUUID(), service.getServiceId()));
             }
             if (service.isUseServiceHttp() && configName.equals("http")) {
-                String serviceName="http-"+getServiceName(service);
-                serviceClusters.computeIfAbsent(serviceName, (s)->create(s, s, s));
-                routeHosts.add(create("http-"+service.getServiceId(), "http-"+service.getServiceUUID(), "http-"+service.getServiceId()));
+                String serviceName = "http-" + getServiceName(service);
+                serviceClusters.computeIfAbsent(serviceName, (s) -> create(s, s, s));
+                routeHosts.add(create("http-" + service.getServiceId(), "http-" + service.getServiceUUID(), "http-" + service.getServiceId()));
             }
         });
-        if((cluster==ServiceType.manager || cluster==ServiceType.gateway)
-                && "http".equals(configName)){
-            Service service=services.get(node);
-            routeHosts.add(create("all", "http-"+service.getServiceUUID(), "*"));
-        }
         routeHosts.addAll(serviceClusters.values());
-        RouteConfig routeConfig=new RouteConfig();
+        if ("http".equals(configName)) {
+            Service service = services.get(node);
+            if (service.isUseServiceHttp()) {
+                routeHosts.add(create("all", "http-" + service.getServiceUUID(), "*"));
+            }
+        }
+        RouteConfig routeConfig = new RouteConfig();
         routeConfig.setVirtualHosts(routeHosts);
         LOGGER.info("result :{}", routeConfig);
         return routeConfig;
@@ -77,16 +78,7 @@ public class EnvoyMeshManagerService implements MeshManagerService {
     public ClusterConfig clusters(ServiceType cluster, String node) {
         LOGGER.debug("clusters: {}, {}", cluster, node);
         ClusterConfig config = new ClusterConfig();
-        List<Cluster> clusters;
-        switch (cluster) {
-            case manager:
-            case gateway:
-            case serving:
-                clusters = managerClusters(node);
-                break;
-            default:
-                clusters = Collections.emptyList();
-        }
+        List<Cluster> clusters = managerClusters(node);
         config.setClusters(clusters);
         LOGGER.debug("clusters: {}", config);
         return config;
@@ -98,33 +90,34 @@ public class EnvoyMeshManagerService implements MeshManagerService {
 
     /**
      * Because envoy cluster must be max 60 symbols
+     *
      * @param service
      * @return
      */
-    private String generateServiceUUID(Service service){
+    private String generateServiceUUID(Service service) {
         return UUID.nameUUIDFromBytes(getServiceName(service).getBytes()).toString();
     }
 
     private List<ClusterHost> getStaticHost(Service service, String forNode, boolean isHttp) {
-        boolean sameNode=service.getServiceId().equals(forNode);
-        StringBuilder builder=new StringBuilder("tcp://");
-        if(sameNode){
+        boolean sameNode = service.getServiceId().equals(forNode);
+        StringBuilder builder = new StringBuilder("tcp://");
+        if (sameNode) {
             builder.append("127.0.0.1");
-        }else{
+        } else {
             builder.append(service.getIp());
         }
 
         builder.append(":");
-        if(sameNode){
-            if(isHttp){
+        if (sameNode) {
+            if (isHttp) {
                 builder.append(service.getServiceHttpPort());
-            }else {
+            } else {
                 builder.append(service.getServiceGrpcPort());
             }
-        }else{
-            if(isHttp){
+        } else {
+            if (isHttp) {
                 builder.append(service.getSideCarHttpPort());
-            }else {
+            } else {
                 builder.append(service.getSideCarGrpcPort());
             }
         }
@@ -132,8 +125,8 @@ public class EnvoyMeshManagerService implements MeshManagerService {
     }
 
     private List<Cluster> managerClusters(String node) {
-        Service nodeService=services.get(node);
-        String nodeServiceName=getServiceName(nodeService);
+        Service nodeService = services.get(node);
+        String nodeServiceName = getServiceName(nodeService);
 
 
         List<Cluster> result = new ArrayList<>();
@@ -148,13 +141,13 @@ public class EnvoyMeshManagerService implements MeshManagerService {
                 cluster.serviceName(grpcServiceName)
                         .features("http2")
                         .name(grpcServiceName);
-                if(nodeServiceName.equals(grpcServiceName)){
+                if (nodeServiceName.equals(grpcServiceName)) {
                     serviceClusters.computeIfAbsent(grpcServiceName, (s) -> {
-                        cluster.hosts(Collections.singletonList(new ClusterHost("tcp://127.0.0.1:"+service.getServiceGrpcPort())))
+                        cluster.hosts(Collections.singletonList(new ClusterHost("tcp://127.0.0.1:" + service.getServiceGrpcPort())))
                                 .type("static");
                         return cluster.build();
                     });
-                }else{
+                } else {
                     serviceClusters.computeIfAbsent(grpcServiceName, (s) -> {
                         cluster.type("sds");
                         return cluster.build();
@@ -167,19 +160,19 @@ public class EnvoyMeshManagerService implements MeshManagerService {
                         .hosts(getStaticHost(service, node, false))
                         .build());
             }
-            String httpServiceName = "http-"+getServiceName(service);
+            String httpServiceName = "http-" + getServiceName(service);
             if (service.isUseServiceHttp()) {
                 cluster.serviceName(httpServiceName)
                         .features(null)
                         .name(httpServiceName);
 
-                if(nodeServiceName.equals(grpcServiceName)){
+                if (nodeServiceName.equals(grpcServiceName)) {
                     serviceClusters.computeIfAbsent(httpServiceName, (s) -> {
-                        cluster.hosts(Collections.singletonList(new ClusterHost("tcp://127.0.0.1:"+service.getServiceHttpPort())))
+                        cluster.hosts(Collections.singletonList(new ClusterHost("tcp://127.0.0.1:" + service.getServiceHttpPort())))
                                 .type("static");
                         return cluster.build();
                     });
-                }else{
+                } else {
                     serviceClusters.computeIfAbsent(httpServiceName, (s) -> {
                         cluster.type("sds");
                         return cluster.build();
@@ -187,7 +180,7 @@ public class EnvoyMeshManagerService implements MeshManagerService {
                 }
 
                 result.add(cluster.serviceName(null)
-                        .name("http-"+service.getServiceUUID())
+                        .name("http-" + service.getServiceUUID())
                         .type("static")
                         .hosts(getStaticHost(service, node, true))
                         .build());
@@ -200,33 +193,33 @@ public class EnvoyMeshManagerService implements MeshManagerService {
     @Override
     public ServiceConfig services(String serviceName) {
         LOGGER.debug("services: {}", serviceName);
-        int indexFrom=0;
-        boolean isHttp=false;
-        if(serviceName.startsWith("http-")){
-            indexFrom="http-".length();
-            isHttp=true;
+        int indexFrom = 0;
+        boolean isHttp = false;
+        if (serviceName.startsWith("http-")) {
+            indexFrom = "http-".length();
+            isHttp = true;
         }
-        int indexName=serviceName.indexOf("-", indexFrom+1);
-        ServiceType serviceType=ServiceType.valueOf(serviceName.substring(indexFrom, indexName));
-        String name=serviceName.substring(indexName+1);
+        int indexName = serviceName.indexOf("-", indexFrom + 1);
+        ServiceType serviceType = ServiceType.valueOf(serviceName.substring(indexFrom, indexName));
+        String name = serviceName.substring(indexName + 1);
 
-        List<ServiceHost> hosts=new ArrayList<>();
-        boolean check=isHttp;
+        List<ServiceHost> hosts = new ArrayList<>();
+        boolean check = isHttp;
         services.values().stream()
-                .filter(p->p.getServiceType()==serviceType)
-                .filter(p->p.getLastKnownStatus()==ServiceStatus.UP)
-                .filter(p->p.getServiceName().equals(name))
-                .forEach(p->{
-                    ServiceHost host=new ServiceHost();
-                    if(check){
+                .filter(p -> p.getServiceType() == serviceType)
+                .filter(p -> p.getLastKnownStatus() == ServiceStatus.UP)
+                .filter(p -> p.getServiceName().equals(name))
+                .forEach(p -> {
+                    ServiceHost host = new ServiceHost();
+                    if (check) {
                         host.setPort(p.getSideCarHttpPort());
-                    }else{
+                    } else {
                         host.setPort(p.getSideCarGrpcPort());
                     }
                     host.setIpAddress(p.getIp());
                     hosts.add(host);
                 });
-        ServiceConfig config=new ServiceConfig();
+        ServiceConfig config = new ServiceConfig();
         config.setHosts(hosts);
         LOGGER.debug("services result: {}", config);
         return config;
@@ -275,7 +268,7 @@ public class EnvoyMeshManagerService implements MeshManagerService {
 
     @Override
     public Service getService(String serviceId) {
-        LOGGER.info("DDDD"+serviceId);
+        LOGGER.info("DDDD" + serviceId);
         return services.get(serviceId);
     }
 }

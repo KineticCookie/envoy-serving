@@ -9,15 +9,7 @@ import java.util.List;
  *
  */
 public interface EndpointService {
+    EndpointDefinition endpointDefinition(String endpoint);
+
     ServingPipeline getPipeline(String endpoint, JsonNode jsonNode);
-
-    void create(EndpointDefinition definition);
-
-    EndpointDefinition getDefinition(String name);
-
-    void delete(String name);
-
-    void updateDefinition(EndpointDefinition definition);
-
-    List<EndpointDefinition> definitions();
 }

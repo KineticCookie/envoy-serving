@@ -1,6 +1,6 @@
 FROM hydrosphere/pipelineserving-java:${docker.current.build.version}
 
-ENV USE_APP_HTTP=false
+ENV USE_APP_HTTP=true
 ENV USE_APP_GRPC=true
 ENV APP_START_SCRIPT=/hydrosphere/start-manager.sh
 ENV SERVICE_TYPE=serving

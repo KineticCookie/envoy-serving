@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * TODO use class from manager
+ *
  */
 @Data
 public class EndpointDefinition {

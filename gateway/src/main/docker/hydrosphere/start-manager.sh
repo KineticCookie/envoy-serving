@@ -9,4 +9,6 @@ exec java $JAVA_OPTS -jar /hydrosphere/gateway.jar \
     --sideCar.host=localhost \
     --sideCar.httpPort=$ENVOY_HTTP_PORT \
     --sideCar.grpcPort=$ENVOY_GRPC_PORT \
-    --sideCar.serviceId=$SERVICE_ID
+    --sideCar.serviceId=$SERVICE_ID \
+    --sideCar.managerHost=$MANAGER_HOST \
+    --sideCar.managerPort=$MANAGER_PORT
