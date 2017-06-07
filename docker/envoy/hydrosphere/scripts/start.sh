@@ -44,7 +44,7 @@ chmod +x $APP_START_SCRIPT
 $APP_START_SCRIPT $CONTAINER_ID &
 APP_PID=$!
 
-if [ "$APP_GRPC_PORT" == "true" ]; then
+if [ "$USE_APP_GRPC" == "true" ]; then
 #wait server start
 while ! nc -z localhost $APP_GRPC_PORT; do
   sleep 0.1 # wait for 1/10 of the second before check again

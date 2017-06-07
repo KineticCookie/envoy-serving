@@ -10,6 +10,10 @@ import io.hydrosphere.serving.service.AuthorityReplacerInterceptor;
 import io.hydrosphere.serving.service.MeshManagerService;
 import io.hydrosphere.serving.service.Service;
 import io.hydrosphere.serving.service.ServiceStatus;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +37,16 @@ public class HealthCheckController {
     @Autowired
     SideCarConfig.SideCarConfigurationProperties sideCarConfigurationProperties;
 
+    private final HttpClient httpClient = new HttpClient();
+
+    public HealthCheckController() {
+        try {
+            httpClient.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @RequestMapping("/{serviceId}")
     @ResponseBody
     public DeferredResult<String> heath(@PathVariable String serviceId) {
@@ -47,33 +61,58 @@ public class HealthCheckController {
             service.setLastKnownStatus(ServiceStatus.UP);
             result.setResult("OK");
         } else {
-            healthServiceStub.withOption(AuthorityReplacerInterceptor.DESTINATION_KEY, serviceId)
-                    .health(HealthRequest.newBuilder().build(), new StreamObserver<HealthResponse>() {
-                        @Override
-                        public void onNext(HealthResponse value) {
-                            if (value.getStatus() == HealthStatus.UP) {
-                                //TODO wrong place to do
-                                service.setLastKnownStatus(ServiceStatus.UP);
-                                result.setResult("OK");
-                            } else {
-                                //TODO wrong place to do
-                                service.setLastKnownStatus(ServiceStatus.DOWN);
-                                result.setErrorResult(String.valueOf(value));
-                            }
-                        }
-
-                        @Override
-                        public void onError(Throwable t) {
-                            //TODO wrong place to do
-                            service.setLastKnownStatus(ServiceStatus.DOWN);
-                            result.setErrorResult(t);
-                        }
-
-                        @Override
-                        public void onCompleted() {
-                        }
-                    });
+            if (service.isUseServiceGrpc()) {
+                grpcCheck(result, service);
+            } else {
+                httpCheck(result, service);
+            }
         }
         return result;
+    }
+
+    private void httpCheck(DeferredResult<String> result, Service service) {
+        try {
+            ContentResponse response = httpClient.newRequest("http://" + service.getIp() + ":" + service.getSideCarHttpPort() + "/health")
+                    .method(HttpMethod.GET)
+                    .scheme("http")
+                    .header(HttpHeader.HOST, "http-" + service.getServiceId())
+                    .send();
+            if (response.getStatus() == 200) {
+                result.setResult(String.valueOf(result.getResult()));
+            } else {
+                result.setErrorResult(response.getStatus() + " : " + String.valueOf(result.getResult()));
+            }
+        } catch (Exception e) {
+            result.setErrorResult(e);
+        }
+    }
+
+    private void grpcCheck(DeferredResult<String> result, Service service) {
+        healthServiceStub.withOption(AuthorityReplacerInterceptor.DESTINATION_KEY, service.getServiceId())
+                .health(HealthRequest.newBuilder().build(), new StreamObserver<HealthResponse>() {
+                    @Override
+                    public void onNext(HealthResponse value) {
+                        if (value.getStatus() == HealthStatus.UP) {
+                            //TODO wrong place to do
+                            service.setLastKnownStatus(ServiceStatus.UP);
+                            result.setResult("OK");
+                        } else {
+                            //TODO wrong place to do
+                            service.setLastKnownStatus(ServiceStatus.DOWN);
+                            result.setErrorResult(String.valueOf(value));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        //TODO wrong place to do
+                        service.setLastKnownStatus(ServiceStatus.DOWN);
+                        result.setErrorResult(t);
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                    }
+                });
     }
 }

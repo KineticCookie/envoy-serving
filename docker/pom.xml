@@ -38,6 +38,12 @@
                                 <dockerFileDir>${project.basedir}/java</dockerFileDir>
                             </build>
                         </image>
+                        <image>
+                            <name>hydrosphere/pipelineserving-python3:${project.version}</name>
+                            <build>
+                                <dockerFileDir>${project.basedir}/python3</dockerFileDir>
+                            </build>
+                        </image>
                     </images>
                 </configuration>
                 <executions>
