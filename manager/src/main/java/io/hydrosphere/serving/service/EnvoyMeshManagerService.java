@@ -213,7 +213,8 @@ public class EnvoyMeshManagerService implements MeshManagerService {
         LOGGER.debug("Current services: {}",services);
         services.values().stream()
                 .filter(p -> p.getServiceType() == serviceType)
-                .filter(p -> p.getLastKnownStatus() == ServiceStatus.UP)
+                //TODO UNCOMMENT!!!!
+                //.filter(p -> p.getLastKnownStatus() == ServiceStatus.UP)
                 .filter(p -> p.getServiceName().equals(name))
                 .forEach(p -> {
                     ServiceHost host = new ServiceHost();
