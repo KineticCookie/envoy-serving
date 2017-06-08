@@ -96,7 +96,7 @@ public class ServingServiceImpl extends ServingServiceGrpc.ServingServiceImplBas
     }
 
     private void sendErrorMessage(ServingPipeline request, String message) {
-        logger.error("sendErrorMessage: {}", request);
+        logger.error("sendErrorMessage: {}, {}", request, message);
 
         ServingPipeline next = request.toBuilder()
                 .setError(io.hydrosphere.serving.proto.Error.newBuilder()

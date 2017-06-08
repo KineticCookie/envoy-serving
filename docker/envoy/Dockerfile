@@ -19,6 +19,10 @@ ENV SERVICE_VERSION=dummy
 ENV MANAGER_HOST=localhost
 ENV MANAGER_PORT=8080
 
+ENV ZIPKIN_ENABLED=false
+ENV ZIPKIN_HOST=localhost
+ENV ZIPKIN_PORT=9411
+
 RUN apk add --update curl \
     && chmod +x /hydrosphere/scripts/start.sh \
     && rm -rf /var/cache/apk/* /tmp/*

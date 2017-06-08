@@ -46,7 +46,7 @@ public class EnvoyMeshManagerService implements MeshManagerService {
 
     @Override
     public RouteConfig routes(String configName, ServiceType cluster, String node) {
-        LOGGER.info("routes: {},{},{}", configName, cluster, node);
+        LOGGER.debug("routes: {},{},{}", configName, cluster, node);
         List<RouteHost> routeHosts = new ArrayList<>();
         Map<String, RouteHost> serviceClusters = new HashMap<>();
         services.values().forEach((service) -> {
@@ -64,13 +64,13 @@ public class EnvoyMeshManagerService implements MeshManagerService {
         routeHosts.addAll(serviceClusters.values());
         if ("http".equals(configName)) {
             Service service = services.get(node);
-            if (service.isUseServiceHttp()) {
+            if (service!=null && service.isUseServiceHttp()) {
                 routeHosts.add(create("all", "http-" + service.getServiceUUID(), "*"));
             }
         }
         RouteConfig routeConfig = new RouteConfig();
         routeConfig.setVirtualHosts(routeHosts);
-        LOGGER.info("result :{}", routeConfig);
+        LOGGER.debug("result :{}", routeConfig);
         return routeConfig;
     }
 
@@ -126,6 +126,9 @@ public class EnvoyMeshManagerService implements MeshManagerService {
 
     private List<Cluster> managerClusters(String node) {
         Service nodeService = services.get(node);
+        if(nodeService==null){
+            return Collections.emptyList();
+        }
         String nodeServiceName = getServiceName(nodeService);
 
 
@@ -149,7 +152,8 @@ public class EnvoyMeshManagerService implements MeshManagerService {
                     });
                 } else {
                     serviceClusters.computeIfAbsent(grpcServiceName, (s) -> {
-                        cluster.type("sds");
+                        cluster.hosts(null)
+                                .type("sds");
                         return cluster.build();
                     });
                 }
@@ -174,7 +178,8 @@ public class EnvoyMeshManagerService implements MeshManagerService {
                     });
                 } else {
                     serviceClusters.computeIfAbsent(httpServiceName, (s) -> {
-                        cluster.type("sds");
+                        cluster.hosts(null)
+                                .type("sds");
                         return cluster.build();
                     });
                 }
@@ -205,6 +210,7 @@ public class EnvoyMeshManagerService implements MeshManagerService {
 
         List<ServiceHost> hosts = new ArrayList<>();
         boolean check = isHttp;
+        LOGGER.debug("Current services: {}",services);
         services.values().stream()
                 .filter(p -> p.getServiceType() == serviceType)
                 .filter(p -> p.getLastKnownStatus() == ServiceStatus.UP)
@@ -241,7 +247,7 @@ public class EnvoyMeshManagerService implements MeshManagerService {
 
     @Override
     public void registerService(Service service) {
-        LOGGER.info("registerService: {}", service);
+        LOGGER.debug("registerService: {}", service);
         service.setLastKnownStatus(ServiceStatus.DOWN);
         service.setServiceUUID(generateServiceUUID(service));
         services.put(service.getServiceId(), service);
@@ -261,6 +267,7 @@ public class EnvoyMeshManagerService implements MeshManagerService {
         newService.setCheck(serviceCheck);
         try {
             consulClient.agentServiceRegister(newService);
+            LOGGER.debug("registered in Consul: {}", service);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -268,7 +275,6 @@ public class EnvoyMeshManagerService implements MeshManagerService {
 
     @Override
     public Service getService(String serviceId) {
-        LOGGER.info("DDDD" + serviceId);
         return services.get(serviceId);
     }
 }

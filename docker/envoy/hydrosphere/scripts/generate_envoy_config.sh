@@ -14,6 +14,9 @@ cat <<EOF >> /hydrosphere/configs/envoy.json
           "type": "read",
           "name": "http_connection_manager",
           "config": {
+            "tracing": {
+              "operation_name": "ingress"
+            },
             "codec_type": "http1",
             "idle_timeout_s": 840,
             "stat_prefix": "egress_http1",
@@ -46,6 +49,9 @@ cat <<EOF >> /hydrosphere/configs/envoy.json
           "type": "read",
           "name": "http_connection_manager",
           "config": {
+            "tracing": {
+              "operation_name": "ingress"
+            },
             "codec_type": "http2",
             "idle_timeout_s": 840,
             "stat_prefix": "egress_http2",
@@ -68,6 +74,25 @@ cat <<EOF >> /hydrosphere/configs/envoy.json
       ]
     }
   ],
+EOF
+
+if [ "$ZIPKIN_ENABLED" == "true" ]; then
+cat <<EOF >> /hydrosphere/configs/envoy.json
+"tracing": {
+    "http": {
+      "driver": {
+        "type": "zipkin",
+        "config": {
+          "collector_cluster": "zipkin",
+          "collector_endpoint": "/api/v1/spans"
+        }
+      }
+    }
+  },
+EOF
+fi
+
+cat <<EOF >> /hydrosphere/configs/envoy.json
   "admin": {
     "access_log_path": "/var/log/envoy/admin_access.log",
     "address": "tcp://0.0.0.0:$ENVOY_ADMIN_PORT"
@@ -81,6 +106,26 @@ cat <<EOF >> /hydrosphere/configs/envoy.json
         "lb_type": "round_robin",
         "hosts": [{"url": "tcp://$MANAGER_HOST:$MANAGER_PORT"}]
       }
+EOF
+
+if [ "$ZIPKIN_ENABLED" == "true" ]; then
+cat <<EOF >> /hydrosphere/configs/envoy.json
+      ,{
+        "name": "zipkin",
+        "connect_timeout_ms": 1000,
+        "type": "strict_dns",
+        "lb_type": "round_robin",
+        "hosts": [
+          {
+            "url": "tcp://$ZIPKIN_HOST:$ZIPKIN_PORT"
+          }
+        ]
+      }
+EOF
+fi
+
+
+cat <<EOF >> /hydrosphere/configs/envoy.json
     ],
     "sds": {
       "cluster": {

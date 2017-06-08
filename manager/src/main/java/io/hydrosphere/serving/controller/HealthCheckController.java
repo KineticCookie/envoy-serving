@@ -15,11 +15,17 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.async.DeferredResult;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -49,7 +55,15 @@ public class HealthCheckController {
 
     @RequestMapping("/{serviceId}")
     @ResponseBody
-    public DeferredResult<String> heath(@PathVariable String serviceId) {
+    public DeferredResult<String> heath(@PathVariable String serviceId, HttpServletRequest httpRequest) {
+        Enumeration<String> enumeration= httpRequest.getHeaderNames();
+        Map<String, String> map=new HashMap<>();
+        while (enumeration.hasMoreElements()){
+            String n=enumeration.nextElement();
+            map.put(n, httpRequest.getHeader(n));
+        }
+        System.err.println(map);
+
         Service service = managerService.getService(serviceId);
         if (service == null) {
             throw new RuntimeException("Can't find service=" + serviceId);
