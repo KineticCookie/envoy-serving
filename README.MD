@@ -1,4 +1,4 @@
-####Description
+#### Description
 
 Some text about:
 1. Current problems in ML serving: complex models, models reusability, multi-framework pipelines, stability
@@ -14,7 +14,7 @@ Some text about:
     * add GRPC stream interface to gateway
 
 
-###Build
+### Build
 0. Clone sources from repositories
 ```
 #Envoy start scripts + envoy manager + gateway + simple runtime 
@@ -73,9 +73,9 @@ You will get:
 docker-compose up localml-spark mist-runtime-scikit model1 model2 model3 model4
 ```
 
-###Pipeline Examples
+### Pipeline Examples
 
-####GRPC async pipeline
+#### GRPC async pipeline
 ```
 curl -H "Content-Type: application/json" -X POST -d '{"name":"endpoint1", "chain":["serving-model1","serving-model2","serving-model3","serving-model4"]}' http://localhost:8080/api/v1/pipelines
 ```
@@ -86,7 +86,7 @@ This will create next pipeline
 curl -H "Content-Type: application/json" -X POST -d '[{"test":"test"}]' http://localhost:8083/api/v1/serve/endpoint1
 ```
 
-####HTTP pipeline
+#### HTTP pipeline
 
 ```
 curl -H "Content-Type: application/json" -X POST -d '{"name":"endpointHttp","transportType":"http", "chain":["serving-model1/v1/serving","serving-model2/v1/serving","serving-model3/v1/serving","serving-model4/v1/serving"]}' http://localhost:8080/api/v1/pipelines
