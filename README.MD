@@ -1,3 +1,19 @@
+####Description
+
+Some text about:
+1. Current problems in ML serving: complex models, models reusability, multi-framework pipelines, stability
+2. How we solve them: using microservice principles for ML model serving + REAL pipelines
+![Image](docs/images/Diagrams.png?raw=true)
+3. Some text about envoy and sidecar. We have selected because:
+    * we move all "microservice" logic from ML Serving model to envoy
+    * we can add any existing runtime to our cluster without code changes  
+4. We can: rate limiting, Load balancing, Circuit breaking, Tracing, Statistics
+5. we will:
+    * move all pipline logic to envoy
+    * create apk/deb
+    * add GRPC stream interface to gateway
+
+
 ###Build
 0. Clone sources from repositories
 ```
@@ -54,14 +70,56 @@ You will get:
 
 5. Run runtime
 ```
-docker-compose up localml-spark mist-runtime-scikit model1 model2
+docker-compose up localml-spark mist-runtime-scikit model1 model2 model3 model4
 ```
 
-6. Create pipelines
+###Pipeline Examples
+
+####GRPC async pipeline
+```
+curl -H "Content-Type: application/json" -X POST -d '{"name":"endpoint1", "chain":["serving-model1","serving-model2","serving-model3","serving-model4"]}' http://localhost:8080/api/v1/pipelines
+```
+This will create next pipeline
+![Image](docs/images/4modelpipeline.png?raw=true)
+
+```
+curl -H "Content-Type: application/json" -X POST -d '[{"test":"test"}]' http://localhost:8083/api/v1/serve/endpoint1
+```
+
+####GRPC async pipeline
+
+Draft
+Draft
+Draft
+Duff
+Draft
+Draft
+Draft
+
+
+
+
+```
+curl -H "Content-Type: application/json" -X POST -d '{"name":"endpoint1", "chain":["serving-model1","serving-model2","serving-model3","serving-model4"]}' http://localhost:8080/api/v1/pipelines
+```
+This will create next pipeline
+![Image](docs/images/4modelpipeline.png?raw=true)
+
+```
+curl -H "Content-Type: application/json" -X POST -d '[{"test":"test"}]' http://localhost:8083/api/v1/serve/endpoint1
+```
+
+
+
+
+
+
+
+
 
 ```
 curl -H "Content-Type: application/json" -X POST -d '{"name":"endpoint1", "chain":["serving-model1"]}' http://localhost:8083/api/v1/pipelines
-curl -H "Content-Type: application/json" -X POST -d '{"name":"endpoint2", "chain":["serving-model1","serving-model2"]}' http://localhost:8080/api/v1/pipelines
+
 
 curl -H "Content-Type: application/json" -X POST -d '{"name":"endpointScikit","transportType":"http", "chain":["serving-scikit/svm"]}' http://localhost:8080/api/v1/pipelines
 
@@ -73,7 +131,7 @@ curl -H "Content-Type: application/json" -X POST -d '{"name":"endpointBoth","tra
 
 7. Check 
 ```
-curl -H "Content-Type: application/json" -X POST -d '[{"test":"test"}]' http://localhost:8083/api/v1/serve/endpoint1
+
 
 curl -H "Content-Type: application/json" -X POST -d '[{"test":"test"}]' http://localhost:8083/api/v1/serve/endpoint2
 

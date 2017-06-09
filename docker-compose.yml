@@ -79,7 +79,29 @@ services:
       SERVICE_NAME: "model2"
     restart: always
 
+  model3:
+    image: hydrosphere/pipelineserving-serving-java-spring:1.0-SNAPSHOT
+    depends_on:
+      - consul
+      - manager
+    environment:
+      ZIPKIN_ENABLED: "true"
+      ZIPKIN_HOST: "zipkin"
+      MANAGER_HOST: "manager"
+      SERVICE_NAME: "model3"
+    restart: always
 
+  model4:
+    image: hydrosphere/pipelineserving-serving-java-spring:1.0-SNAPSHOT
+    depends_on:
+      - consul
+      - manager
+    environment:
+      ZIPKIN_ENABLED: "true"
+      ZIPKIN_HOST: "zipkin"
+      MANAGER_HOST: "manager"
+      SERVICE_NAME: "model4"
+    restart: always
 
   localml-spark:
     image: mist-runtime-sparklocal
