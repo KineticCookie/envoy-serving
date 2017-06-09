@@ -1,17 +1,40 @@
 ###Build
-1. Build this repository
+0. Clone sources from repositories
+```
+#Envoy start scripts + envoy manager + gateway + simple runtime 
+git clone https://github.com/Zajs/envoy-serving
+
+#ML Runtimes + ML models repository
+git clone -b dev_envoy https://github.com/provectus/hydro-serving.git
+```
+
+1. Build modules from first repository. Change directory to `envoy-serving` and:
 ```
 mvn clean install
 ```
-2. Build runtime https://github.com/provectus/hydro-serving/tree/dev_envoy
+You will get next docker images:
+* `hydrosphere/pipelineserving-envoy-alpine` - common image with envoy-alpine.
+* `hydrosphere/pipelineserving-java` - common image for all java applications.
+* `hydrosphere/pipelineserving-python3` - common image for python3 applications.
+* `hydrosphere/pipelineserving-gateway` - image with gateway app - will process all http requests from client.
+* `hydrosphere/pipelineserving-manager` - image with manager app - manages all pipelines and envoys configurations.
+* `hydrosphere/pipelineserving-serving-java-spring` - image with simple Spring Boot app. 
+
+
+2. Build images modules from second repository. Change directory to `hydro-serving` and:
 ```
 ./build.sh
 ```
-3. Run managers
+You will get next docker images:
+* `mist-ml-repository` - ML model storage, it scans selected directory and parses founded ML models, also provides RestAPI to access this models 
+* `mist-runtime-sparklocal` - Spark ML runtime, serves spark models
+* `mist-runtime-scikit` - Scikit runtime, serves scikit models. 
+
+3. Run Managers. Change directory to `envoy-serving` and: 
 ```
 docker-compose up consul zipkin manager
 ```
-http://localhost:8500/ui/#/dc1/services/manager-global-cluster-manager
+http://localhost:8500/ui/
 http://localhost:9411/
 
 4. Run repository and gateway

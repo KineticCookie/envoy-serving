@@ -92,8 +92,12 @@ public class HealthCheckController {
                     .header(HttpHeader.HOST, "http-" + service.getServiceId())
                     .send();
             if (response.getStatus() == 200) {
+                //TODO wrong place to do
+                service.setLastKnownStatus(ServiceStatus.UP);
                 result.setResult(String.valueOf(result.getResult()));
             } else {
+                //TODO wrong place to do
+                service.setLastKnownStatus(ServiceStatus.DOWN);
                 result.setErrorResult(response.getStatus() + " : " + String.valueOf(result.getResult()));
             }
         } catch (Exception e) {
