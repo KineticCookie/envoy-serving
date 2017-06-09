@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -29,7 +30,7 @@ public class GRPCGatewayServiceImpl extends ServingServiceGrpc.ServingServiceImp
         this.servingService = servingService;
     }
 
-    public DeferredResult<JsonNode> sendToMesh(ServingPipeline pipeline) {
+    public DeferredResult<JsonNode> sendToMesh(ServingPipeline pipeline, Map<String, String> headers) {
         logger.info("io.hydrosphere.serving.service.GRPCGatewayServiceImpl.sendToMesh: {}", pipeline);
 
         DeferredResult<JsonNode> result = new DeferredResult<>();

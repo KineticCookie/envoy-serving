@@ -59,7 +59,7 @@ public class ServingController {
             return httpGatewayService.execute(definition, jsonNode, headers);
         } else {
             ServingPipeline servingPipeline = endpointService.getPipeline(endpoint, jsonNode);
-            return grpcGatewayService.sendToMesh(servingPipeline);
+            return grpcGatewayService.sendToMesh(servingPipeline, headers);
         }
     }
 }

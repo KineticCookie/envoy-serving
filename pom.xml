@@ -12,7 +12,6 @@
         <module>proto-java</module>
         <module>serving-java-spring</module>
         <module>gateway</module>
-        <module>client</module>
         <module>manager</module>
         <module>docker</module>
     </modules>

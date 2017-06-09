@@ -43,18 +43,18 @@ public class GRPCServingConfig {
                         sideCarConfigurationProperties.getGrpcPort())
                 .usePlaintext(true)
                 .build();
-        ClientInterceptor interceptor = new AuthorityReplacerInterceptor();
-        Channel channel = ClientInterceptors.intercept(managedChannel, interceptor);
+        Channel channel = ClientInterceptors.intercept(managedChannel,
+                new AuthorityReplacerInterceptor(), new TracingHeaderInterceptor());
         return ServingServiceGrpc.newStub(channel);
     }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
     public Server server() {
         return NettyServerBuilder.forPort(sideCarConfigurationProperties.getServiceGrpcPort())
-                .addService(new ServingServiceImpl(servingServiceStub(),
+                .addService(ServerInterceptors.intercept(new ServingServiceImpl(servingServiceStub(),
                         stageExecutor(),
                         executor(),
-                        sideCarConfigurationProperties.getServiceId()))
+                        sideCarConfigurationProperties.getServiceId()), new TracingHeaderInterceptor()))
                 .addService(new HealthServiceImpl(getCheckers()))
                 .build();
     }

@@ -1,15 +1,13 @@
 package io.hydrosphere.serving.config;
 
+import com.sun.xml.internal.ws.api.client.ServiceInterceptor;
 import io.grpc.*;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.NettyServerBuilder;
 import io.hydrosphere.serving.proto.Health;
 import io.hydrosphere.serving.proto.HealthStatus;
 import io.hydrosphere.serving.proto.ServingServiceGrpc;
-import io.hydrosphere.serving.service.AuthorityReplacerInterceptor;
-import io.hydrosphere.serving.service.GRPCGatewayServiceImpl;
-import io.hydrosphere.serving.service.HealthChecker;
-import io.hydrosphere.serving.service.HealthServiceImpl;
+import io.hydrosphere.serving.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.context.ApplicationContext;
@@ -41,15 +39,15 @@ public class GRPCServingConfig {
                         sideCarConfigurationProperties.getGrpcPort())
                 .usePlaintext(true)
                 .build();
-        ClientInterceptor interceptor = new AuthorityReplacerInterceptor();
-        Channel channel = ClientInterceptors.intercept(managedChannel, interceptor);
+
+        Channel channel = ClientInterceptors.intercept(managedChannel, new AuthorityReplacerInterceptor(), new TracingHeaderInterceptor());
         return ServingServiceGrpc.newStub(channel);
     }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
     public Server server() {
         return NettyServerBuilder.forPort(sideCarConfigurationProperties.getServiceGrpcPort())
-                .addService(grpcGatewayService())
+                .addService(ServerInterceptors.intercept(grpcGatewayService(), new TracingHeaderInterceptor()))
                 .addService(new HealthServiceImpl(getCheckers()))
                 .build();
     }

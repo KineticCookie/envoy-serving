@@ -25,10 +25,12 @@ public class EmptyStageExecutor implements StageExecutor {
     public JsonNode execute(String action, JsonNode data) {
         JsonNode jsonNode = data.deepCopy();
         ArrayNode arrayNode = (ArrayNode) jsonNode;
-        ObjectNode objectNode = new ObjectNode(objectMapper.getNodeFactory());
-        objectNode.put(servingConfigurationProperties.getServiceName(), properties.getServiceId());
-        arrayNode.add(objectNode);
-
+        for(JsonNode node:arrayNode){
+            if(node instanceof ObjectNode){
+                ObjectNode objectNode = (ObjectNode) node;
+                objectNode.put(servingConfigurationProperties.getServiceName(), properties.getServiceId());
+            }
+        }
         return arrayNode;
     }
 }
