@@ -14,4 +14,6 @@ import java.util.Map;
 public class ServingConfigurationProperties {
 
     private String stageExecutorClass;
+
+    private String serviceName;
 }

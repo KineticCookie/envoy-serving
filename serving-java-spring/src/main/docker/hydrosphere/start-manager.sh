@@ -9,4 +9,5 @@ exec java $JAVA_OPTS -jar /hydrosphere/serving-java-spring.jar \
     --sideCar.host=localhost \
     --sideCar.httpPort=$ENVOY_HTTP_PORT \
     --sideCar.grpcPort=$ENVOY_GRPC_PORT \
+    --serving.serviceName=$SERVICE_NAME \
     --sideCar.serviceId=$SERVICE_ID
