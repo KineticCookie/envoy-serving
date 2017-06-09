@@ -86,7 +86,17 @@ This will create next pipeline
 curl -H "Content-Type: application/json" -X POST -d '[{"test":"test"}]' http://localhost:8083/api/v1/serve/endpoint1
 ```
 
-####GRPC async pipeline
+####HTTP pipeline
+
+```
+curl -H "Content-Type: application/json" -X POST -d '{"name":"endpointHttp","transportType":"http", "chain":["serving-model1/v1/serving","serving-model2/v1/serving","serving-model3/v1/serving","serving-model4/v1/serving"]}' http://localhost:8080/api/v1/pipelines
+```
+This will create next pipeline
+![Image](docs/images/4http.png?raw=true)
+
+```
+curl -H "Content-Type: application/json" -X POST -d '[{"test":"test"}]' http://localhost:8083/api/v1/serve/endpointHttp
+```
 
 Draft
 Draft
