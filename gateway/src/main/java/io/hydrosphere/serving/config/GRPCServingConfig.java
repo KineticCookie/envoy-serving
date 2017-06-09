@@ -1,6 +1,5 @@
 package io.hydrosphere.serving.config;
 
-import com.sun.xml.internal.ws.api.client.ServiceInterceptor;
 import io.grpc.*;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.NettyServerBuilder;
@@ -53,7 +52,7 @@ public class GRPCServingConfig {
     }
 
     @Bean
-    public GRPCGatewayServiceImpl grpcGatewayService(){
+    public GRPCGatewayServiceImpl grpcGatewayService() {
         return new GRPCGatewayServiceImpl(servingServiceStub());
     }
 
