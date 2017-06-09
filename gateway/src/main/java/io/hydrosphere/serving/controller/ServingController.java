@@ -55,12 +55,6 @@ public class ServingController {
         Arrays.stream(HEADERS).forEach(s->{
             headers.put(s, httpServletRequest.getHeader(s));
         });
-
-     /*   headers.forEach((k, v) -> {
-            if (v != null && v.length() > 0) {
-                response.setHeader(k, v);
-            }
-        });*/
         if ("http".equals(definition.getTransportType())) {
             return httpGatewayService.execute(definition, jsonNode, headers);
         } else {

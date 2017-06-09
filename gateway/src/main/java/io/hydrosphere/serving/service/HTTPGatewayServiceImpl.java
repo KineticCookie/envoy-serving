@@ -54,6 +54,7 @@ public class HTTPGatewayServiceImpl {
 
     public JsonNode sendAll(EndpointDefinition definition, JsonNode jsonNode, Map<String, String> headers) throws IOException, InterruptedException, ExecutionException, TimeoutException {
         JsonNode result = jsonNode;
+        LOGGER.info("Request {}: {}", definition, jsonNode);
         for (String s : definition.getChain()) {
             Request request = httpClient.newRequest("http://" + properties.getHost() + ":" + properties.getHttpPort() + s.substring(s.indexOf("/")))
                     .method(HttpMethod.POST)
@@ -66,16 +67,17 @@ public class HTTPGatewayServiceImpl {
                     request.header(k, v);
                 }
             });
-            LOGGER.info("Headers: {}", request.getHeaders());
             ContentResponse response = request.send();
-            if(response.getStatus()==200){
+            if (response.getStatus() == 200) {
                 result = objectMapper.readTree(response.getContent());
-            }else{
+            } else {
                 LOGGER.error("SOme error na: {}, reason: {}, {}", response.getStatus(), response.getReason(), response.getContentAsString());
                 throw new RuntimeException("SOme error na");
             }
+
             jsonNode = result;
         }
+        LOGGER.info("Response {}", result);
         return result;
 
     }

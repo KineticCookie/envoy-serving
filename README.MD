@@ -30,17 +30,27 @@ You will get next docker images:
 * `mist-runtime-sparklocal` - Spark ML runtime, serves spark models
 * `mist-runtime-scikit` - Scikit runtime, serves scikit models. 
 
-3. Run Managers. Change directory to `envoy-serving` and: 
+3. Run infrastructure and manager. Change directory to `envoy-serving` and: 
 ```
 docker-compose up consul zipkin manager
 ```
-http://localhost:8500/ui/
-http://localhost:9411/
+You will get:
+* [Consul-UI](http://localhost:8500/ui/) - http://localhost:8500/ui/
+* [Zipkin-UI](http://localhost:9411/) - http://localhost:9411/
+* [Manager-RestAPI](http://localhost:8080/api/v1/pipelines) - http://localhost:8080/api/v1/pipelines
 
 4. Run repository and gateway
 ```
+export MODEL_DIRECTORY=YOUR_PATH_TO_hydro-serving/models
 docker-compose up gateway repository
 ```
+You will get:
+* [Gateway-RestAPI](http://localhost:8083/api/v1/serve/) - http://localhost:8083/api/v1/serve/...
+* [Repository-RestAPI](http://localhost:8087) - http://localhost:8087
+    1. `GET /metadata/<model_name>` returns metadata of specified model.
+    2. `GET /files/<model_name>` returns a list of model's files.
+    3. `GET /download/<model_name>/<file>` downloads the given file of specified model. Thus, repository also acts as a proxy between Runtime and actually the storage of models.
+
 
 5. Run runtime
 ```

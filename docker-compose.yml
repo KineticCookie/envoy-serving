@@ -40,6 +40,21 @@ services:
       MANAGER_HOST: "manager"
     restart: always
 
+  repository:
+    image: mist-ml-repository
+    ports:
+      - "8087:9090"
+    depends_on:
+      - consul
+      - manager
+    environment:
+      ZIPKIN_ENABLED: "true"
+      ZIPKIN_HOST: "zipkin"
+      MANAGER_HOST: "manager"
+    restart: always
+    volumes:
+        - ${MODEL_DIRECTORY}:/models
+
   model1:
     image: hydrosphere/pipelineserving-serving-java-spring:1.0-SNAPSHOT
     depends_on:
@@ -65,18 +80,6 @@ services:
     restart: always
 
 
-  repository:
-    image: mist-ml-repository
-    depends_on:
-      - consul
-      - manager
-    environment:
-      ZIPKIN_ENABLED: "true"
-      ZIPKIN_HOST: "zipkin"
-      MANAGER_HOST: "manager"
-    restart: always
-    volumes:
-        - /Users/eduarddautov/work/provectus/hydro-serving/models/:/models
 
   localml-spark:
     image: mist-runtime-sparklocal
