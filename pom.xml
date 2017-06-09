@@ -29,7 +29,6 @@
                 <groupId>io.hydrosphere.serving</groupId>
                 <artifactId>proto</artifactId>
                 <version>${project.version}</version>
-                <classifier>pom</classifier>
             </dependency>
             <dependency>
                 <groupId>io.hydrosphere.serving</groupId>
