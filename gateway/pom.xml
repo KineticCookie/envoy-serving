@@ -14,6 +14,10 @@
     <dependencies>
         <dependency>
             <groupId>io.hydrosphere.serving</groupId>
+            <artifactId>docker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.hydrosphere.serving</groupId>
             <artifactId>proto-java</artifactId>
         </dependency>
         <dependency>
