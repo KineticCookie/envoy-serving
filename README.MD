@@ -107,5 +107,8 @@ This will create next pipeline
 ![Image](docs/images/realml.png?raw=true)
 
 ```
-curl -H "Content-Type: application/json" -X POST -d '[{"test":"test"}]' http://localhost:8083/api/v1/serve/endpointML
+curl --request POST \
+  --url http://localhost:8083/api/v1/serve/endpointML \
+  --header 'content-type: application/json' \
+--data '[{"sepal length (cm)":5.0,"sepal width (cm)":3.0,"petal length (cm)":1.6,"petal width (cm)":0.2,"features":[1,2,3,4,5]},{"sepal length (cm)":5.9,"sepal width (cm)":3.0,"petal length (cm)":5.1,"petal width (cm)":1.8,"features":[8,0,5,1,7]}]'
 ```

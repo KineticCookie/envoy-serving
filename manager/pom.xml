@@ -15,6 +15,7 @@
         <dependency>
             <groupId>io.hydrosphere.serving</groupId>
             <artifactId>docker</artifactId>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>io.hydrosphere.serving</groupId>
